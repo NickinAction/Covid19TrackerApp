@@ -35,4 +35,8 @@
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
 </dict>
+  <key>NSLocationAlwaysUsageDescription</key>
+  <string>Your message goes here</string>
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>Your message goes here</string>
 </plist>
