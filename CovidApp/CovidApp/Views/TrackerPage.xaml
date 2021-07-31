@@ -5,34 +5,20 @@
     
     <ContentPage.Content>
 
-        <Grid RowDefinitions="*, Auto, Auto, Auto, Auto, *">
-
-
+        <Grid RowDefinitions="*, Auto, Auto, Auto, *">
             <Label 
                 x:Name="CasesCount"
                 Grid.Row="1"
                 TextColor="black"
-                Text="##"
-                FontSize="90"
-                HorizontalOptions="Center" />
-            <Label 
-                Grid.Row="2"
-                TextColor="black"
-                FontSize="22"
                 Text="{Binding LatLong}"
-                HorizontalOptions="Center" />
-            <Label 
-                Grid.Row="3"
-                Text="##"
-                TextColor="black"
                 FontSize="90"
                 HorizontalOptions="Center" />
-            <Label 
-                Grid.Row="4"
-                Text="deaths"
-                TextColor="black"
-                FontSize="22"
-                HorizontalOptions="Center" />
+            <Label x:Name="DataLabel"
+                   Grid.Row="2"
+                   TextColor="black"
+                   FontSize="22"
+                   Text="Info goes here"
+                   HorizontalOptions="Center" />
 
 
         </Grid>

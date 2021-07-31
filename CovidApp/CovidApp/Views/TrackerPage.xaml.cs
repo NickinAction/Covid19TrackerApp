@@ -9,51 +9,26 @@ using System.Net.Http;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using System.Net.Http.Headers;
-
+using System;
+using System.IO;
+using NetTopologySuite.Geometries;
+using GeoJSON.Net;
+using System.Reflection;
 
 namespace CovidApp.Views {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class TrackerPage : ContentPage {
-        public TrackerPage() {
+        public TrackerPage(List<PolyInfo> regions) {
             InitializeComponent();
+
             BindingContext = this;
-            InitialiseClient();
-            //Task.Run(async () => { systemLoop(); });
 
+            Task.Run(async () => { await systemLoop(regions); });
         }
 
-        HttpClient client;
-        apiLocation deviceLocation;
-        RootobjectGeoJson healthUnits;
+        List<PolyInfo> regions = new List<PolyInfo>();
 
-        async public void InitialiseClient() {
-
-            //will store our device location, and be updated if the device is more that ~2km away the stored location
-            deviceLocation = new apiLocation();
-
-            client = new HttpClient();
-            //making the client request JSON data
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-
-            string url = "https://opendata.arcgis.com/datasets/c57833f0b7fb482e91c5de7b7b283a3a_0.geojson";
-
-            
-            using (HttpResponseMessage response = await client.GetAsync(url)) {
-                if (response.IsSuccessStatusCode) {
-
-                    healthUnits = await response.Content.ReadAsAsync<RootobjectGeoJson>();
-                }
-                else {
-                    throw new Exception("not working...");
-                }
-            }
-            
-            //Console.WriteLine(healthUnits.features[0].geometry);
-
-        }
-        string latLong = "Latitude and Longitude go here."; //useless but why not
+        public string latLong;
         public string LatLong {
             get => latLong;
             set {
@@ -63,109 +38,40 @@ namespace CovidApp.Views {
                 OnPropertyChanged(nameof(LatLong));
             }
         }
-          
-        public async void systemLoop() {
-            bool runApi = false;
-            int n = 1; // counts the the loop number (potentially useful)
 
+        public string polyName = "default";
+
+        public async Task systemLoop(List<PolyInfo> regions) {
+
+            int tracker = 0;
             while (true) {
-                var delayTask = Task.Delay(15000);
-                var newLocation = await Geolocation.GetLastKnownLocationAsync();
-                if (!deviceLocation.IsInitialized()) {
-                    //if the location is not initialized, we will initialize
-                    deviceLocation.latitude = newLocation.Latitude;
-                    deviceLocation.longitude = newLocation.Longitude;
-                    runApi = true;
-                }
-                else { 
 
-                    var distance = deviceLocation.DistanceFrom(newLocation.Latitude, newLocation.Longitude);
+                var delayTask = Task.Delay(15000); // 15 seconds
+                // request location
+                var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
+                CancellationTokenSource source = new CancellationTokenSource();
+                CancellationToken cancelToken = source.Token;
+                var loc = await Geolocation.GetLocationAsync(request, cancelToken);
 
-                    //update the display with the new distance number 
-                    LatLong = distance.ToString();
+                // create a point from the lat and lon retrieved
+                var curPoint = new NetTopologySuite.Geometries.Point(loc.Latitude, loc.Longitude);
 
-                    // if more that 2km away
-                    if (distance >= 2.0) runApi = true;
+                foreach (var poly in regions) {
+                    if (poly.geom.Contains(curPoint)) {
+                        polyName = $"{poly.engName} has ID: {poly.hRID}";
 
-
-
-                    //new code starting
-
-                    string url = "https://opendata.arcgis.com/datasets/c57833f0b7fb482e91c5de7b7b283a3a_0.geojson";
-
-                    using (HttpResponseMessage response = await client.GetAsync(url)) {
-                        if (response.IsSuccessStatusCode) {
-
-                            RootobjectGeoJson returnJSON = await response.Content.ReadAsAsync<RootobjectGeoJson>();
-
-                        }
-                        else {
-                            throw new Exception("not working...");
-                        }
+                        break;
                     }
-
                 }
-
-                if(runApi) {
-                    //displayCurLoc();
-                }
-
-                //run the covid API
-
-
-                //displayCurLoc(n);
+                tracker++;
+                MainThread.BeginInvokeOnMainThread(() => {
+                    DataLabel.Text = polyName;
+                    CasesCount.Text = $"{tracker}";
+                });
+                // wait 15 seconds
                 await delayTask;
-                n++;
             }
 
-        }
-        
-
-        public async void displayCurLoc() {
-            try {
-                var location = await Geolocation.GetLastKnownLocationAsync();
-
-                if (location != null) {
-                    /*
-                    Console.WriteLine($"{val}, Latitude: {location.Latitude}, Longitude: {location.Longitude}, Altitude: {location.Altitude}");
-                    LatLong = $"{val}, Latitude: {location.Latitude}, Longitude: {location.Longitude}";
-                    Console.WriteLine("Finished doing async task sucessfully.");
-                    */
-
-                    string apiKey = "A0dRkTpbURILssAZWP5NFdQ3TLAfBlxN";
-
-                    string url = "https://www.mapquestapi.com/geocoding/v1/reverse?key="
-                        + apiKey + "&location="
-                        + location.Latitude + ","
-                        + location.Longitude;
-
-                    using (HttpResponseMessage response = await client.GetAsync(url)) {
-                        if(response.IsSuccessStatusCode) {
-                            Rootobject displayLocation = await response.Content.ReadAsAsync<Rootobject>();
-
-                            LatLong = displayLocation.results[0].locations[0].adminArea3;
-                      
-                        }
-                        else {
-                            throw new Exception("not working...");
-                        }
-                    }
-
-                }
-            }
-            catch (FeatureNotSupportedException fnsEx) {
-                // Handle not supported on device exception
-            }
-            catch (FeatureNotEnabledException fneEx) {
-                // Handle not enabled on device exception
-            }
-            catch (PermissionException pEx) {
-                // Handle permission exception
-            }
-            catch (Exception ex) {
-                // Unable to get location
-                Console.WriteLine($"not working... Message: {ex.Message}");
-            }
         }
     }
 }

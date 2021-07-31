@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -6,13 +6,26 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="file.geojson" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Esri.ArcGISRuntime.Xamarin.Forms" Version="100.9.0" />
     <PackageReference Include="Geocoding.MapQuest" Version="4.0.1" />
     <PackageReference Include="GeoJSON.Net" Version="1.2.19" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
+    <PackageReference Include="Syncfusion.Xamarin.Buttons" Version="19.2.0.47" />
+    <PackageReference Include="Syncfusion.Xamarin.Cards" Version="19.2.0.47" />
+    <PackageReference Include="Syncfusion.Xamarin.Core" Version="19.2.0.47" />
+    <PackageReference Include="Syncfusion.Xamarin.SfBadgeView" Version="19.2.0.47" />
+    <PackageReference Include="Syncfusion.Xamarin.SfComboBox" Version="19.2.0.47" />
+    <PackageReference Include="Syncfusion.Xamarin.SfListView" Version="19.2.0.47" />
+    <PackageReference Include="Syncfusion.Xamarin.SfRating" Version="19.2.0.47" />
+    <PackageReference Include="Syncfusion.Xamarin.SfRotator" Version="19.2.0.47" />
     <PackageReference Include="Xamarin.Forms" Version="4.8.0.1451" />  
-    <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />  
+    <PackageReference Include="Xamarin.Forms.PancakeView" Version="2.3.0.759" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,6 +35,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Views\LoadingPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="Views\TrackerPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
