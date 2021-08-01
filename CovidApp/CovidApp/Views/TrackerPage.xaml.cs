@@ -56,6 +56,7 @@ namespace CovidApp.Views {
                 // create a point from the lat and lon retrieved
                 var curPoint = new NetTopologySuite.Geometries.Point(loc.Latitude, loc.Longitude);
 
+
                 foreach (var poly in regions) {
                     if (poly.geom.Contains(curPoint)) {
                         polyName = $"{poly.engName} has ID: {poly.hRID}";

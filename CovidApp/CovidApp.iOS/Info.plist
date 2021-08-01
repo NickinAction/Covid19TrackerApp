@@ -5,13 +5,10 @@
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
-		<integer>2</integer>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
@@ -20,8 +17,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>Please allow location use.</string>
 	<key>MinimumOSVersion</key>
-	<string>11.0</string>
+	<string>14.0</string>
 	<key>CFBundleDisplayName</key>
 	<string>CovidApp</string>
 	<key>CFBundleIdentifier</key>
@@ -34,9 +33,7 @@
 	<string>CovidApp</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
+	<key>UIStatusBarHidden</key>
+	<true/>
 </dict>
-  <key>NSLocationAlwaysUsageDescription</key>
-  <string>Your message goes here</string>
-  <key>NSLocationWhenInUseUsageDescription</key>
-  <string>Your message goes here</string>
 </plist>

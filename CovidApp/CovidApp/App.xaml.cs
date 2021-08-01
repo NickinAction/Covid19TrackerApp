@@ -1,4 +1,5 @@
 using CovidApp.Views;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
@@ -21,15 +22,45 @@ namespace CovidApp {
         protected override async void OnStart() {
             List<PolyInfo> regions = await GeoJsonHandling.InitGeoJSON();
 
-            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+            //Task.Run(async () => { await permissionRequest(); }).Wait();
 
-            if(status != PermissionStatus.Granted) {
-                status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-            }
+            var status = await RequestAsync_Fixed<Permissions.LocationWhenInUse>();
 
             MainPage = new NavigationPage(new TrackerPage(regions));
 
 
+        }
+
+        async Task permissionRequest() {
+            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+
+            if (status != PermissionStatus.Granted) {
+                Console.WriteLine($"Current status: {status}, Asking permission...");
+                MainThread.BeginInvokeOnMainThread(async () => {
+                    status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+
+                });
+                Console.WriteLine($"Current status: {status} outside if");
+                if (await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>() != PermissionStatus.Granted) {
+                    Console.WriteLine($"Current status: {status}.");
+                }
+                Console.WriteLine($"Responded {status}");
+            }
+        }
+
+        public async Task<PermissionStatus> RequestAsync_Fixed<TPermission>()
+        where TPermission : Permissions.BasePermission, new() {
+            // temporary fix for https://github.com/xamarin/Essentials/issues/1390
+            if (Xamarin.Forms.Device.RuntimePlatform == Xamarin.Forms.Device.iOS &&
+                DeviceInfo.Version.Major >= 14) {
+                Permissions.RequestAsync<TPermission>(); // don't await as it won't return on iOS 14 until https://github.com/xamarin/Essentials/issues/1390 is fixed
+                PermissionStatus status;
+                while ((status = await Permissions.CheckStatusAsync<TPermission>()) == PermissionStatus.Unknown)
+                    await Task.Delay(50);
+                return status;
+            }
+
+            return await Permissions.RequestAsync<TPermission>();
         }
 
         protected override void OnSleep() {
