@@ -30,7 +30,6 @@ namespace CovidApp.Views {
         }
 
         List<PolyInfo> regions = new List<PolyInfo>();
-        //needed values for API requests
         HttpClient client = new HttpClient();
 
         string apiLink = "https://api.opencovid.ca/summary?stat=cases&loc=";
@@ -83,15 +82,11 @@ namespace CovidApp.Views {
 
                 //API requests 
                 string localPHU = await client.GetStringAsync($"{apiLink}{id}{apiLink1}{yesterdayDate}");
-                string testString1 = $"{vaccineLink}{id}{vaccineLink1}{yesterdayDate}";
                 string localVaccines = await client.GetStringAsync($"{vaccineLink}{id}{vaccineLink1}{vaccineYesterday}");
-                string testString2 = $"{vaccineLink}{id}{vaccineLink1}{vaccineYesterday}";
                 //string provinceWide = await client.GetStringAsync(apiLink + provLocation + apiLink1 + yesterdayDate);
                 //string provinceVaccines = await client.GetStringAsync(provVaccineLink + provLocation + vaccineLink1 + vaccineYesterday);
                 string canadaWide = await client.GetStringAsync("https://api.opencovid.ca/summary?stat=cases&loc=canada&date=" + yesterdayDate);
-                string testString3 = $"https://api.opencovid.ca/summary?stat=cases&loc=canada&date={yesterdayDate}";
                 string canadaVaccines = await client.GetStringAsync("https://api.covid19tracker.ca/reports?date=" + vaccineYesterday);
-                string testString4 = $"https://api.covid19tracker.ca/reports?date={vaccineYesterday}";
 
                 //Creation of JSON objects for data retrieved from APIs
                 JObject localStats = JObject.Parse(localPHU);
@@ -119,6 +114,7 @@ namespace CovidApp.Views {
                 /*
                 *  Provincial Data 
                 *
+                currently not in use: provincial location not implemented
 
                 //assign variables for provincial data
                 var provinceDailyCases = provinceStats["summary"][0]["cases"];
