@@ -31,23 +31,6 @@ namespace CovidApp {
 
         }
 
-        async Task permissionRequest() {
-            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
-
-            if (status != PermissionStatus.Granted) {
-                Console.WriteLine($"Current status: {status}, Asking permission...");
-                MainThread.BeginInvokeOnMainThread(async () => {
-                    status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-
-                });
-                Console.WriteLine($"Current status: {status} outside if");
-                if (await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>() != PermissionStatus.Granted) {
-                    Console.WriteLine($"Current status: {status}.");
-                }
-                Console.WriteLine($"Responded {status}");
-            }
-        }
-
         public async Task<PermissionStatus> RequestAsync_Fixed<TPermission>()
         where TPermission : Permissions.BasePermission, new() {
             // temporary fix for https://github.com/xamarin/Essentials/issues/1390
