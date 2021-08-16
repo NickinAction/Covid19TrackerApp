@@ -37,6 +37,8 @@ namespace CovidApp.Views {
         string provVaccineLink = "https://api.covid19tracker.ca/reports/province/";
         string vaccineLink1 = "?date=";
         string apiLink1 = "&date=";
+        string provLocation = "ON";
+    
 
         public string latLong;
         public string LatLong {
@@ -57,6 +59,7 @@ namespace CovidApp.Views {
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
             client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
 
+
             int tracker = 0;
             while (true) {
 
@@ -74,25 +77,76 @@ namespace CovidApp.Views {
 
                 foreach (var poly in regions) {
                     if (poly.geom.Contains(curPoint)) {
-                        polyName = $"{poly.engName} has ID: {poly.hRID}";
+                        polyName = $"You are located within the {poly.engName}";
                         id = poly.hRID;
                         break;
                     }
                 }
 
+                /*
+                 * Somewhat fragmented in order to implement provincial location
+                 */
                 //API requests 
                 string localPHU = await client.GetStringAsync($"{apiLink}{id}{apiLink1}{yesterdayDate}");
                 string localVaccines = await client.GetStringAsync($"{vaccineLink}{id}{vaccineLink1}{vaccineYesterday}");
-                //string provinceWide = await client.GetStringAsync(apiLink + provLocation + apiLink1 + yesterdayDate);
-                //string provinceVaccines = await client.GetStringAsync(provVaccineLink + provLocation + vaccineLink1 + vaccineYesterday);
+                JObject localStats = JObject.Parse(localPHU);
+                
+                //find provincial code 
+                switch (localStats["summary"][0]["province"].ToString())
+                {
+                    case "Ontario":
+                        provLocation = "ON";
+                        break;
+                    case "Quebec":
+                        provLocation = "QC";
+                        break;
+                    case "Alberta":
+                        provLocation = "AB";
+                        break;
+                    case "BC":
+                        provLocation = "BC";
+                        break;
+                    case "Manitoba":
+                        provLocation = "MB";
+                        break;
+                    case "New Brunswick":
+                        provLocation = "NB";
+                        break;
+                    case "NL":
+                        provLocation = "NL";
+                        break;
+                    case "NWT":
+                        provLocation = "NWT";
+                        break;
+                    case "Nova Scotia":
+                        provLocation = "NS";
+                        break;
+                    case "Nunavut":
+                        provLocation = "NU";
+                        break;
+                    case "PEI":
+                        provLocation = "PE";
+                        break;
+                    case "Saskatchewan":
+                        provLocation = "SK";
+                        break;
+                    case "Yukon":
+                        provLocation = "YT";
+                        break;
+                    case "Repatriated":
+                        provLocation = "RP";
+                        break;
+                }
+
+                string provinceWide = await client.GetStringAsync(apiLink + provLocation + apiLink1 + yesterdayDate);
+                string provinceVaccines = await client.GetStringAsync(provVaccineLink + provLocation + vaccineLink1 + vaccineYesterday);
                 string canadaWide = await client.GetStringAsync("https://api.opencovid.ca/summary?stat=cases&loc=canada&date=" + yesterdayDate);
                 string canadaVaccines = await client.GetStringAsync("https://api.covid19tracker.ca/reports?date=" + vaccineYesterday);
 
                 //Creation of JSON objects for data retrieved from APIs
-                JObject localStats = JObject.Parse(localPHU);
                 JObject localVaccine = JObject.Parse(localVaccines);
-                //JObject provinceStats = JObject.Parse(provinceWide);
-                //JObject vaccinesProv = JObject.Parse(provinceVaccines);
+                JObject provinceStats = JObject.Parse(provinceWide);
+                JObject vaccinesProv = JObject.Parse(provinceVaccines);
                 JObject canadaStats = JObject.Parse(canadaWide);
                 JObject vaccineCanada = JObject.Parse(canadaVaccines);
 
@@ -111,11 +165,12 @@ namespace CovidApp.Views {
                 var localTotalVaccinated = localVaccine["data"][0]["total_vaccinated"];
                 var localVaccinesAdmin = localVaccine["data"][0]["total_vaccinations"];
 
+                //assign local area
+                var userLocation = localStats["summary"][0]["health_region"];
+
                 /*
                 *  Provincial Data 
-                *
-                currently not in use: provincial location not implemented
-
+                */
                 //assign variables for provincial data
                 var provinceDailyCases = provinceStats["summary"][0]["cases"];
                 var provinceTotalCases = provinceStats["summary"][0]["cumulative_cases"];
@@ -126,7 +181,9 @@ namespace CovidApp.Views {
                 var provinceDailyVaccines = vaccinesProv["data"][0]["change_vaccinations"];
                 var provinceTotalVaccinated = vaccinesProv["data"][0]["total_vaccinated"];
                 var provinceVaccinesAdmin = vaccinesProv["data"][0]["total_vaccinations"];
-                */
+
+                //assign user province
+                var userProv = localStats["summary"][0]["province"];
 
                 /*
                  * National Data
@@ -146,12 +203,32 @@ namespace CovidApp.Views {
                 tracker++;
                 MainThread.BeginInvokeOnMainThread(() => {
                     DataLabel.Text = polyName;
-                    CasesCount.Text = $"{localDailyCases}";
+                    CasesCount.Text = $"{localDailyCases} new case(s) in {userLocation}";
+                    deathsCount.Text = $"{localDeaths} deaths in {userLocation}";
+
+                    if (Preferences.Get("Stats", true) == true)
+                    {
+                        broadCases.Text = $"{canadaCases} new case(s) in Canada";
+                        broadDeaths.Text = $"{canadaDeaths} death(s) in Canada";
+                    }
+                    else
+                    {
+                        broadCases.Text = $"{provinceDailyCases} new case(s) in {userProv}";
+                        broadDeaths.Text = $"{provinceDeaths} death(s) in {userProv}";
+                    }
+
+
                 });
                 // wait 15 seconds
                 await delayTask;
             }
 
         }
+
+        public async void SettingsClicked(object sender, EventArgs e)
+        {
+            Application.Current.MainPage = new SettingsPage();
+        }
+
     }
 }

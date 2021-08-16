@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CovidApp.Views.SettingsPage"
+             Title="Settings"
+             BackgroundColor="White">
+    <StackLayout Margin="20">
+        <Grid RowDefinitions="Auto, Auto, Auto, Auto">
+            <Label Text="Settings" 
+                   TextColor="Black" 
+                   FontSize="40" 
+                   HorizontalOptions="Center" 
+                   Grid.Row="1"/>
+            <Line X1="0"
+                  X2="500"
+                  Y1="0"
+                  Y2="0"
+                  Stroke="Black" 
+                  StrokeThickness="3" 
+                  Grid.Row="2"/>
+            <Label x:Name="Stats" 
+                   TextColor="Black" 
+                   Grid.Row="3"/>
+            <Switch IsToggled ="{Binding rememberValue}" 
+                    Grid.Row="3"/>
+            <Line X1="0"
+                  X2="500"
+                  Stroke="Black" 
+                  StrokeThickness="3" 
+                  Grid.Row="4"/>
+            <Button Text ="Back" Clicked="ButtonClicked" HorizontalOptions="Start"/>
+        </Grid>
+        
+    </StackLayout>
+
+</ContentPage>

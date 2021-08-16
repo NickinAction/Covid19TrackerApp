@@ -28,7 +28,6 @@ namespace CovidApp {
 
             MainPage = new NavigationPage(new TrackerPage(regions));
 
-
         }
 
         public async Task<PermissionStatus> RequestAsync_Fixed<TPermission>()

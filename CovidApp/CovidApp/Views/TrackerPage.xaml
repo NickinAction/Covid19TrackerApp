@@ -1,8 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="CovidApp.Views.TrackerPage">
-    
+             x:Class="CovidApp.Views.TrackerPage"
+             BackgroundColor="White">
+    <NavigationPage.TitleView>
+        <Button Text="Settings" 
+                    Grid.Row="0"
+                    TextColor="Black"
+                    Clicked="SettingsClicked"
+                    HorizontalOptions="End"
+                    />
+    </NavigationPage.TitleView> 
     <ContentPage.Content>
 
         <Grid RowDefinitions="*, Auto, Auto, Auto, *">
@@ -11,14 +19,36 @@
                 Grid.Row="1"
                 TextColor="black"
                 Text="{Binding LatLong}"
-                FontSize="90"
+                FontSize="30"
+                HorizontalOptions="Center" />
+            <Label 
+                x:Name="deathsCount"
+                Grid.Row="2"
+                TextColor="black"
+                Text="{Binding LatLong}"
+                FontSize="30"
+                HorizontalOptions="Center" />
+            <Label 
+                x:Name="broadCases"
+                Grid.Row="3"
+                TextColor="black"
+                Text="{Binding LatLong}"
+                FontSize="30"
+                HorizontalOptions="Center" />            
+            <Label 
+                x:Name="broadDeaths"
+                Grid.Row="4"
+                TextColor="black"
+                Text="{Binding LatLong}"
+                FontSize="30"
                 HorizontalOptions="Center" />
             <Label x:Name="DataLabel"
-                   Grid.Row="2"
+                   Grid.Row="6"
                    TextColor="black"
-                   FontSize="22"
-                   Text="Info goes here"
+                   FontSize="15"
+                   Text="Loading Data..."
                    HorizontalOptions="Center" />
+
 
 
         </Grid>
