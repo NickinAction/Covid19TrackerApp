@@ -1,56 +1,301 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="CovidApp.Views.TrackerPage"
-             BackgroundColor="White">
-    <NavigationPage.TitleView>
-        <Button Text="Settings" 
-                    Grid.Row="0"
-                    TextColor="Black"
-                    Clicked="SettingsClicked"
-                    HorizontalOptions="End"
-                    />
-    </NavigationPage.TitleView> 
+             BackgroundColor="White"
+             x:Name="TrackerPageXAML">
+
+    <ContentPage.Resources>
+        <Style x:Key="InfoFrame" TargetType="Frame">
+            <Setter Property="BackgroundColor" Value="OrangeRed" />
+            <Setter Property="CornerRadius" Value="10" />
+        </Style>
+        <Style x:Key="StatisticsNumber" TargetType="Label">
+            <Setter Property="FontSize" Value="36" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+        <Style x:Key="WrapperGrid" TargetType="Grid">
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="Margin" Value="10,0" />
+            <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+        </Style>
+        <Style x:Key="StatisticsType" TargetType="Label">
+            <Setter Property="FontSize" Value="19" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+        </Style>
+
+    </ContentPage.Resources>
+
     <ContentPage.Content>
-
-        <Grid RowDefinitions="*, Auto, Auto, Auto, *">
-            <Label 
-                x:Name="CasesCount"
-                Grid.Row="1"
-                TextColor="black"
-                Text="{Binding LatLong}"
-                FontSize="30"
-                HorizontalOptions="Center" />
-            <Label 
-                x:Name="deathsCount"
-                Grid.Row="2"
-                TextColor="black"
-                Text="{Binding LatLong}"
-                FontSize="30"
-                HorizontalOptions="Center" />
-            <Label 
-                x:Name="broadCases"
-                Grid.Row="3"
-                TextColor="black"
-                Text="{Binding LatLong}"
-                FontSize="30"
-                HorizontalOptions="Center" />            
-            <Label 
-                x:Name="broadDeaths"
-                Grid.Row="4"
-                TextColor="black"
-                Text="{Binding LatLong}"
-                FontSize="30"
-                HorizontalOptions="Center" />
-            <Label x:Name="DataLabel"
-                   Grid.Row="6"
-                   TextColor="black"
-                   FontSize="15"
-                   Text="Loading Data..."
-                   HorizontalOptions="Center" />
+        <ScrollView>
 
 
+            <Grid x:Name="grid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-        </Grid>
+
+                <!--top banner-->
+
+                <FlexLayout
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Padding="0"
+                    Margin="10,0"
+                    HorizontalOptions="FillAndExpand"
+                    VerticalOptions="CenterAndExpand"
+                    BindingContext="{x:Reference Name=GearImage}"
+                    HeightRequest="56"
+                    AlignItems="Center"
+                    JustifyContent="End">
+
+
+                    <Image x:Name="GearImage"
+                           Margin="5,5,5,5"
+                           HeightRequest="36"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           Source="gear_icon.png">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="SettingsClicked" NumberOfTapsRequired="1" />
+                        </Image.GestureRecognizers>
+                    </Image>
+                </FlexLayout>
+
+                <!--info part-->
+                <!-- BindingContext="{x:Reference Name=GearImage}"  HeightRequest="{Binding Width}" -->
+
+                <Grid
+                    x:Name="Grid1"
+                    Style="{StaticResource WrapperGrid}"
+                    Padding="10,0,10,10"
+                    ColumnDefinitions="*,*"
+                    Grid.Row="1" IsVisible="True">
+
+                    <Frame
+                        x:Name="Frame1"
+                        Grid.Column="0"
+                        Style="{StaticResource InfoFrame}"
+                        Padding="0"
+                        Margin="0,0,5,0"
+                        BindingContext="{x:Reference Name=Frame1}"
+                        HeightRequest="{Binding Width}">
+
+                        <StackLayout
+                            Margin="15"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            BindingContext="{x:Reference TrackerPageXAML}" >
+
+                            <Label
+                                Text="Active Cases"
+                                Style="{StaticResource StatisticsType}" />
+                            <Label
+
+                                Text="{Binding activeCasesPHU}"
+                                Style="{StaticResource StatisticsNumber}" />
+                            <Label
+                                Text="{Binding newCasesPHU}"
+                                Style="{StaticResource StatisticsNumber}" />
+                        </StackLayout>
+                    </Frame>
+
+                    <Frame
+                        x:Name="Frame2"
+                        Grid.Column="1"
+                        Style="{StaticResource InfoFrame}"
+                        Padding="0"
+                        Margin="5,0,0,0"
+                        BindingContext="{x:Reference Name=Frame2}"
+                        HeightRequest="{Binding Width}">
+                        <StackLayout
+                            Margin="15"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            BindingContext="{x:Reference TrackerPageXAML}" >
+                            <Label
+                                Text="Active Cases"
+                                Style="{StaticResource StatisticsType}" />
+                            <Label
+                                Text="{Binding ActiveCasesRegionalNumber}"
+                                Style="{StaticResource StatisticsNumber}" />
+                            <Label
+                                Text="{Binding NewCasesRegionalNumber}"
+                                Style="{StaticResource StatisticsNumber}" />
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+
+                <Grid
+                    x:Name="Grid2"
+                    Style="{StaticResource WrapperGrid}"
+                    ColumnDefinitions="*,*"
+                    Grid.Row="2">
+
+
+                    <Frame
+                        x:Name="Frame3"
+                        Grid.Column="0"
+                        Style="{StaticResource InfoFrame}"
+                        Padding="0"
+                        Margin="0,0,5,0"
+                        BindingContext="{x:Reference Name=Frame3}"
+                        HeightRequest="{Binding Width}">
+
+                        <StackLayout
+                            Margin="15"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            BindingContext="{x:Reference TrackerPageXAML}">
+
+                            <Label
+                                Text="Deaths"
+                                Style="{StaticResource StatisticsType}" />
+                            <Label
+                                Text="{Binding totalPHUDeaths}"
+                                Style="{StaticResource StatisticsNumber}" />
+                            <Label
+                                Text="{Binding newPHUDeaths}"
+                                Style="{StaticResource StatisticsNumber}" />
+                        </StackLayout>
+                    </Frame>
+
+                    <Frame
+                        x:Name="Frame4"
+                        Grid.Column="1"
+                        Style="{StaticResource InfoFrame}"
+                        Padding="0"
+                        Margin="5,0,0,0"
+                        BindingContext="{x:Reference Name=Frame4}"
+                        HeightRequest="{Binding Width}">
+                        <StackLayout
+                            Margin="15"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            BindingContext="{x:Reference TrackerPageXAML}">
+                            <Label
+                                Text="Deaths"
+                                Style="{StaticResource StatisticsType}" />
+                            <Label
+                                Text="{Binding TotalDeathsRegionalNumber}"
+                                Style="{StaticResource StatisticsNumber}" />
+                            <Label
+                                Text="{Binding NewDeathsRegionalNumber}"
+                                Style="{StaticResource StatisticsNumber}" />
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+
+                <Grid
+                    x:Name="Grid3"
+                    Style="{StaticResource WrapperGrid}"
+                    ColumnDefinitions="*,*"
+                    Grid.Row="3">
+
+
+                    <Frame
+                        x:Name="Frame5"
+                        Grid.Column="0"
+                        Style="{StaticResource InfoFrame}"
+                        Padding="0"
+                        Margin="0,0,5,0"
+                        BindingContext="{x:Reference Name=Frame5}"
+                        HeightRequest="{Binding Width}">
+
+                        <StackLayout
+                            Margin="15"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            BindingContext="{x:Reference TrackerPageXAML}">
+
+                            <Label
+                                Text="Vaccinated"
+                                Style="{StaticResource StatisticsType}" />
+                            <Label
+                                Text="{Binding totalPHUVaccinated}"
+                                Style="{StaticResource StatisticsNumber}" />
+                            <Label
+                                Text="{Binding newPHUVaccinated}"
+                                Style="{StaticResource StatisticsNumber}" />
+                        </StackLayout>
+                    </Frame>
+
+                    <Frame
+                        x:Name="Frame6"
+                        Grid.Column="1"
+                        Style="{StaticResource InfoFrame}"
+                        Padding="0"
+                        Margin="5,0,0,0"
+                        BindingContext="{x:Reference Name=Frame6}"
+                        HeightRequest="{Binding Width}">
+                        <StackLayout
+                            Margin="15"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            BindingContext="{x:Reference TrackerPageXAML}">
+                            <Label
+                                Text="Vaccinated"
+                                Style="{StaticResource StatisticsType}" />
+                            <Label
+                                Text="{Binding TotalVaccinatedRegionalNumber}"
+                                Style="{StaticResource StatisticsNumber}" />
+                            <Label
+                                Text="{Binding NewVaccinatedRegionalNumber}"
+                                Style="{StaticResource StatisticsNumber}" />
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+
+                <Grid x:Name="Grid4"
+                      BackgroundColor="AliceBlue"
+                      Grid.Row="4"
+                      Padding="10,0,10,10"
+                      Margin="10,0"
+                      HorizontalOptions="FillAndExpand"
+                      ColumnDefinitions="*,*">
+
+                    <Frame Grid.Column="0"
+                        Style="{StaticResource InfoFrame}"
+                        Padding="0,5"
+                        Margin="0,0,5,0"
+                        CornerRadius="10">
+                        <Label
+                            FontSize="22"
+                            Text="Local"
+                            Padding="0"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Style="{StaticResource StatisticsType}" />
+                    </Frame>
+                    
+                    <Frame Grid.Column="1"
+                        Padding="0"
+                        Margin="5,0,0,0"
+                        CornerRadius="10"
+                        BindingContext="{x:Reference TrackerPageXAML}"
+                        Style="{StaticResource InfoFrame}">
+                        <Label
+                            FontSize="22"
+                            Padding="0"
+                            Text="{Binding GeneralStatisticsType}"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Style="{StaticResource StatisticsType}" />
+                    </Frame>
+
+                </Grid>
+
+            </Grid>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

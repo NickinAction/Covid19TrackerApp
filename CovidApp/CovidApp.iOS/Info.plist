@@ -17,10 +17,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-  <key>NSLocationWhenInUseUsageDescription</key>
-  <string>Please allow location use.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Please allow location use.</string>
 	<key>MinimumOSVersion</key>
-	<string>14.0</string>
+	<string>15.0</string>
 	<key>CFBundleDisplayName</key>
 	<string>CovidApp</string>
 	<key>CFBundleIdentifier</key>
@@ -35,5 +35,9 @@
 	<string>Assets.xcassets/AppIcon.appiconset</string>
 	<key>UIStatusBarHidden</key>
 	<true/>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 </dict>
 </plist>

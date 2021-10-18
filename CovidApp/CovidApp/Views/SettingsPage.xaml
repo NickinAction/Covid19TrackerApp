@@ -1,36 +1,49 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pk="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
              x:Class="CovidApp.Views.SettingsPage"
              Title="Settings"
-             BackgroundColor="White">
-    <StackLayout Margin="20">
-        <Grid RowDefinitions="Auto, Auto, Auto, Auto">
-            <Label Text="Settings" 
-                   TextColor="Black" 
-                   FontSize="40" 
-                   HorizontalOptions="Center" 
-                   Grid.Row="1"/>
-            <Line X1="0"
-                  X2="500"
-                  Y1="0"
-                  Y2="0"
-                  Stroke="Black" 
-                  StrokeThickness="3" 
-                  Grid.Row="2"/>
-            <Label x:Name="Stats" 
-                   TextColor="Black" 
-                   Grid.Row="3"/>
-            <Switch IsToggled ="{Binding rememberValue}" 
-                    Grid.Row="3"/>
-            <Line X1="0"
-                  X2="500"
-                  Stroke="Black" 
-                  StrokeThickness="3" 
-                  Grid.Row="4"/>
-            <Button Text ="Back" Clicked="ButtonClicked" HorizontalOptions="Start"/>
-        </Grid>
-        
+             BackgroundColor="White"
+             xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core"
+             ios:Page.ModalPresentationStyle="FormSheet">
+
+
+    <StackLayout Spacing="-5" Margin="0" Padding="0">
+        <FlexLayout
+            Padding="0"
+            Margin="10,0"
+            HorizontalOptions="FillAndExpand"
+            VerticalOptions="CenterAndExpand"
+            BindingContext="{x:Reference Name=BackImage}"
+            HeightRequest="56"
+            AlignItems="Center"
+            JustifyContent="Start">
+
+
+            <Image x:Name="BackImage"
+                   Margin="5,5,5,5"
+                   HeightRequest="36"
+                   HorizontalOptions="CenterAndExpand"
+                   VerticalOptions="Center"
+                   Source="back_icon.png">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="BackClicked"  NumberOfTapsRequired="1" />
+                </Image.GestureRecognizers>
+            </Image>
+        </FlexLayout>
+
+        <TableView Intent="Settings" BackgroundColor="White" Margin="0">
+            <TableRoot>
+                <TableSection TextColor="Black">
+                    <SwitchCell Text="Language: ENG"/>
+                    <SwitchCell On="{Binding StatsValue}" Text="{Binding StatisticsTypeText}"/>
+                </TableSection>
+            </TableRoot>
+        </TableView>
     </StackLayout>
+    
+
+
 
 </ContentPage>

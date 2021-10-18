@@ -20,14 +20,14 @@ namespace CovidApp {
         }
 
         protected override async void OnStart() {
+           
             List<PolyInfo> regions = await GeoJsonHandling.InitGeoJSON();
 
             //Task.Run(async () => { await permissionRequest(); }).Wait();
 
             var status = await RequestAsync_Fixed<Permissions.LocationWhenInUse>();
-
-            MainPage = new NavigationPage(new TrackerPage(regions));
-
+            
+            MainPage = new NavigationPage(new TrackerPage(regions)) { BarBackgroundColor = Color.White };
         }
 
         public async Task<PermissionStatus> RequestAsync_Fixed<TPermission>()

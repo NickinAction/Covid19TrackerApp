@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using CovidApp.Views;
+using NetTopologySuite.Operation.Overlay.Validate;
+using Xamarin.Forms.PlatformConfiguration;
+using Xamarin.Forms.PlatformConfiguration.iOSSpecific;
+using Page = Xamarin.Forms.Page;
 
 namespace CovidApp.Views
 {
@@ -15,36 +17,58 @@ namespace CovidApp.Views
     {
         public SettingsPage()
         {
+            On<iOS>().SetModalPresentationStyle(UIModalPresentationStyle.FormSheet);
             InitializeComponent();
-            BindingContext = this;
-            Stats.Text = $"Stats: {rememberValue}";
+
+            BindingContext = this;   
+        }
+        
+        public string StatisticsTypeText
+        {
+            get
+            {
+                string returnValue = StatsValue ? "National" : "Provincial";
+                return $"Stats: {returnValue}";
+            }
         }
 
-        public bool rememberValue
+        //public bool statsValue = Preferences.Get("Stats", "National") == "National";
+
+        public bool StatsValue
         {
-            get => Preferences.Get("Stats", true);
+            get
+            {
+                return Preferences.Get("Stats", "National") == "National";
+            }
             set
             {
-                Preferences.Set("Stats", value);
-                OnPropertyChanged(nameof(rememberValue));
-               
                 if (value)
                 {
-                    Stats.Text = "Set right panels to Provincial Stats";
+                    Preferences.Set("Stats", "National");
+
                 }
                 else
                 {
-                    Stats.Text = "Set right panels to National Stats";
+                    Preferences.Set("Stats", "Provincial");
+
                 }
+                OnPropertyChanged(nameof(StatsValue));
+
+                OnPropertyChanged(nameof(StatisticsTypeText));
             }
-
         }
+
         
-        public async void ButtonClicked(object sender, EventArgs e)
+        public async void BackClicked(object sender, EventArgs e)
         {
-             List<PolyInfo> regions = await GeoJsonHandling.InitGeoJSON();
-             Application.Current.MainPage = new NavigationPage(new TrackerPage(regions));
+            await Navigation.PopModalAsync(true);
+            
         }
 
+        protected override async void OnDisappearing()
+        {
+            base.OnDisappearing();
+
+        }
     }
 }

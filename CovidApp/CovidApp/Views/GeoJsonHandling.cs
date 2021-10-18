@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Threading;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
-using System.Net.Http;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using System.Net.Http.Headers;
 using System.IO;
 using NetTopologySuite.Geometries;
 using GeoJSON.Net;
 
-namespace CovidApp.Views {
+namespace CovidApp.Views
+{
     class GeoJsonHandling {
 
 

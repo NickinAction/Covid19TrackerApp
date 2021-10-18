@@ -1,15 +1,4 @@
-using Syncfusion.SfRotator.XForms.iOS;
-using Syncfusion.XForms.iOS.ComboBox;
-using Syncfusion.XForms.iOS.TextInputLayout;
-using Syncfusion.XForms.iOS.BadgeView;
-using Syncfusion.XForms.iOS.Core;
-using Syncfusion.XForms.iOS.Cards;
-using Syncfusion.SfRating.XForms.iOS;
-using Syncfusion.XForms.iOS.Buttons;
-using Syncfusion.XForms.iOS.Graphics;
-using Syncfusion.XForms.iOS.Border;
-using Syncfusion.XForms.iOS.EffectsView;
-using Syncfusion.ListView.XForms.iOS;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,21 +25,8 @@ namespace CovidApp.iOS
         {
             global::Xamarin.Forms.Forms.SetFlags("CollectionView_Experimental");
             global::Xamarin.Forms.Forms.Init();
-            SfRotatorRenderer.Init();
-            SfComboBoxRenderer.Init();
-            SfTextInputLayoutRenderer.Init();
-            SfAvatarViewRenderer.Init();
-            SfSegmentedControlRenderer.Init();
-            SfRadioButtonRenderer.Init();
-            SfCardViewRenderer.Init();
-            SfRatingRenderer.Init();
-            SfGradientViewRenderer.Init();
-            SfEffectsViewRenderer.Init();
-            SfBorderRenderer.Init();
-            SfButtonRenderer.Init();
-            SfListViewRenderer.Init();
-            SfBadgeViewRenderer.Init();
             LoadApplication(new App());
+            UIApplication.SharedApplication.StatusBarHidden = true;
 
             return base.FinishedLaunching(app, options);
         }

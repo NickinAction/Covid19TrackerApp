@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Threading;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
 using System.Net.Http;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using System.Net.Http.Headers;
-using System;
-using System.IO;
-using NetTopologySuite.Geometries;
-using GeoJSON.Net;
-using System.Reflection;
+using System.Runtime.CompilerServices;
+using Esri.ArcGISRuntime;
 using Newtonsoft.Json.Linq;
 
 namespace CovidApp.Views {
@@ -22,44 +17,340 @@ namespace CovidApp.Views {
         public TrackerPage(List<PolyInfo> regions) {
             InitializeComponent();
             BindingContext = this;
-            DateTime today = DateTime.Today;
-            DateTime yesterday = today.AddDays(-1);
-            string yesterdayDate = yesterday.ToString("dd-MM-yyyy");
-            string vaccineYesterday = yesterday.ToString("yyyy-MM-dd");
-            Task.Run(async () => { await systemLoop(regions, yesterdayDate, vaccineYesterday); });
+            NavigationPage.SetHasNavigationBar(this, false);
+            Task.Run(async () => { await systemLoop(regions); });
         }
 
         List<PolyInfo> regions = new List<PolyInfo>();
         HttpClient client = new HttpClient();
 
-        string apiLink = "https://api.opencovid.ca/summary?stat=cases&loc=";
-        string vaccineLink = "https://api.covid19tracker.ca/reports/regions/";
-        string provVaccineLink = "https://api.covid19tracker.ca/reports/province/";
-        string vaccineLink1 = "?date=";
-        string apiLink1 = "&date=";
-        string provLocation = "ON";
-    
+        #region PHU INFO
 
-        public string latLong;
-        public string LatLong {
-            get => latLong;
-            set {
-                if (value == latLong)
+        public string activeCasesPHUNumber;
+
+        public string newCasesPHUNumber;
+
+        public string totalPHUDeathsNumber;
+
+        public string newPHUDeathsNumber;
+
+        public string totalPHUVaccinatedNumber;
+
+        public string newPHUVaccinatedNumber;
+
+        public string activeCasesPHU
+        {
+            get
+            {
+                return activeCasesPHUNumber;
+            }
+            set
+            {
+                if (activeCasesPHUNumber == value)
+                {
                     return;
-                latLong = value;
-                OnPropertyChanged(nameof(LatLong));
+                }
+
+                activeCasesPHUNumber = value;
+                OnPropertyChanged(nameof(activeCasesPHU));
             }
         }
 
-        public string polyName = "default";
+        public string newCasesPHU
+        {
+            get
+            {
+                return newCasesPHUNumber;
+            }
+            set
+            {
+                if (newCasesPHUNumber == value)
+                {
+                    return;
+                }
 
-        public async Task systemLoop(List<PolyInfo> regions, string yesterdayDate, string vaccineYesterday) {
+                newCasesPHUNumber = value;
+                OnPropertyChanged(nameof(newCasesPHU));
+            }
+        }
+
+        public string totalPHUDeaths
+        {
+            get
+            {
+                return totalPHUDeathsNumber;
+            }
+            set
+            {
+                if (totalPHUDeathsNumber == value)
+                {
+                    return;
+                }
+
+                totalPHUDeathsNumber = value;
+                OnPropertyChanged(nameof(totalPHUDeaths));
+            }
+        }
+
+        public string newPHUDeaths
+        {
+            get
+            {
+                return newPHUDeathsNumber;
+            }
+            set
+            {
+                if (newPHUDeathsNumber == value)
+                {
+                    return;
+                }
+
+                newPHUDeathsNumber = value;
+                OnPropertyChanged(nameof(newPHUDeaths));
+            }
+        }
+
+        public string totalPHUVaccinated
+        {
+            get
+            {
+                return totalPHUVaccinatedNumber;
+            }
+            set
+            {
+                if (totalPHUVaccinatedNumber == value)
+                {
+                    return;
+                }
+
+                totalPHUVaccinatedNumber = value;
+                OnPropertyChanged(nameof(totalPHUVaccinated));
+            }
+
+        }
+
+        public string newPHUVaccinated
+        {
+            get
+            {
+                return newPHUVaccinatedNumber;
+            }
+            set
+            {
+                if (newPHUVaccinatedNumber == value)
+                {
+                    return;
+                }
+
+                newPHUVaccinatedNumber = value;
+                OnPropertyChanged(nameof(newPHUVaccinated));
+            }
+        }
+
+
+        #endregion
+
+        #region NATIONAL/PROVINCIAL INFO
+
+        //CASES - NATIONAL
+
+        public string activeCasesNationalNumber;
+
+        public string newCasesNationalNumber;
+
+        //DEATHS - NATIONAL
+
+        public string totalDeathsNationalNumber;
+
+        public string newDeathsNationalNumber;
+
+        //VACCINES - NATIONAL
+
+        public string totalVaccinatedNationalNumber;
+
+        public string newVaccinatedNationalNumber;
+
+        //CASES - PROVINCIAL
+
+        public string activeCasesProvincialNumber;
+
+        public string newCasesProvincialNumber;
+
+        //DEATHS - PROVINCIAL
+
+        public string totalDeathsProvincialNumber;
+
+        public string newDeathsProvincialNumber;
+
+        //VACCINES - PROVINCIAL
+
+        public string totalVaccinatedProvincialNumber;
+
+        public string newVaccinatedProvincialNumber;
+
+
+
+
+        public string ActiveCasesRegionalNumber
+        {
+            get
+            {
+                if(Preferences.Get("Stats", "National") == "National")
+                {
+                    return activeCasesNationalNumber;
+                }
+                else
+                {
+                    return activeCasesProvincialNumber;
+                }
+            }
+            set
+            {
+            }
+        }
+        public string NewCasesRegionalNumber
+        {
+            get
+            {
+
+                if (Preferences.Get("Stats", "National") == "National")
+                {
+                    return newCasesNationalNumber;
+                }
+                else
+                {
+                    return newCasesProvincialNumber;
+                }
+            }
+            set
+            {
+                
+            }
+        }
+        
+
+        public string TotalDeathsRegionalNumber
+        {
+            get
+            {
+                if (Preferences.Get("Stats", "National") == "National")
+                {
+                    return totalDeathsNationalNumber;
+                }
+                else
+                {
+                    return totalDeathsProvincialNumber;
+                }
+            }
+            set
+            {
+               
+            }
+        }
+        public string NewDeathsRegionalNumber
+        {
+            get
+            {
+                if (Preferences.Get("Stats", "National") == "National")
+                {
+                    return newDeathsNationalNumber;
+                }
+                else
+                {
+                    return newDeathsProvincialNumber;
+                }
+            }
+            set
+            {
+            }
+        }
+
+        public string TotalVaccinatedRegionalNumber
+        {
+            get
+            {
+                if (Preferences.Get("Stats", "National") == "National")
+                {
+                    return totalVaccinatedNationalNumber;
+                }
+                else
+                {
+                    return totalVaccinatedProvincialNumber;
+                }
+            }
+            set
+            {
+            }
+        }
+        public string NewVaccinatedRegionalNumber
+        {
+            get
+            {
+                if (Preferences.Get("Stats", "National") == "National")
+                {
+                    return newVaccinatedNationalNumber;
+                }
+                else
+                {
+                    return newVaccinatedProvincialNumber;
+                }
+            }
+            set
+            {
+            }
+        }
+
+
+        public static string generalStatisticsType;
+
+        public string GeneralStatisticsType
+        {
+            get
+            {
+                return generalStatisticsType;
+            }
+            set
+            {
+                if (value == generalStatisticsType)
+                {
+                    return;
+                }
+
+                generalStatisticsType = value;
+
+                OnPropertyChanged(nameof(GeneralStatisticsType));
+
+                OnPropertyChanged(nameof(TotalDeathsRegionalNumber));
+                OnPropertyChanged(nameof(NewDeathsRegionalNumber));
+
+                OnPropertyChanged(nameof(ActiveCasesRegionalNumber));
+                OnPropertyChanged(nameof(NewCasesRegionalNumber));
+
+                OnPropertyChanged(nameof(TotalVaccinatedRegionalNumber));
+                OnPropertyChanged(nameof(NewVaccinatedRegionalNumber));
+            }
+        }
+
+        #endregion
+        public async Task systemLoop(List<PolyInfo> regions)
+        {
+            DateTime today = DateTime.Today;
+            DateTime yesterday = today.AddDays(-1);
+            string yesterdayDate = yesterday.ToString("dd-MM-yyyy");
+            string vaccineYesterday = yesterday.ToString("yyyy-MM-dd");
+
+            string apiLink = "https://api.opencovid.ca/summary?stat=cases&loc=";
+            string vaccineLink = "https://api.covid19tracker.ca/reports/regions/";
+            string provVaccineLink = "https://api.covid19tracker.ca/reports/province/";
+            string vaccineLink1 = "?date=";
+            string apiLink1 = "&date=";
+            string provLocation = "ON"; //default set to ON
 
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
             client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
 
-
+                
             int tracker = 0;
             while (true) {
 
@@ -77,21 +368,31 @@ namespace CovidApp.Views {
 
                 foreach (var poly in regions) {
                     if (poly.geom.Contains(curPoint)) {
-                        polyName = $"You are located within the {poly.engName}";
                         id = poly.hRID;
                         break;
                     }
                 }
 
+
+
                 /*
                  * Somewhat fragmented in order to implement provincial location
                  */
+
                 //API requests 
                 string localPHU = await client.GetStringAsync($"{apiLink}{id}{apiLink1}{yesterdayDate}");
                 string localVaccines = await client.GetStringAsync($"{vaccineLink}{id}{vaccineLink1}{vaccineYesterday}");
+
+                string betterLocalPHU = await client.GetStringAsync($"{vaccineLink}{id}{vaccineLink1}{vaccineYesterday}");
+
+
+                //Creation of JSON objects for data retrieved from APIs
+
                 JObject localStats = JObject.Parse(localPHU);
-                
-                //find provincial code 
+                JObject betterLocalStats = JObject.Parse(betterLocalPHU);
+
+
+                //find provincial code
                 switch (localStats["summary"][0]["province"].ToString())
                 {
                     case "Ontario":
@@ -138,83 +439,198 @@ namespace CovidApp.Views {
                         break;
                 }
 
-                string provinceWide = await client.GetStringAsync(apiLink + provLocation + apiLink1 + yesterdayDate);
-                string provinceVaccines = await client.GetStringAsync(provVaccineLink + provLocation + vaccineLink1 + vaccineYesterday);
-                string canadaWide = await client.GetStringAsync("https://api.opencovid.ca/summary?stat=cases&loc=canada&date=" + yesterdayDate);
-                string canadaVaccines = await client.GetStringAsync("https://api.covid19tracker.ca/reports?date=" + vaccineYesterday);
+                string provinceWide = await client.GetStringAsync("https://api.covid19tracker.ca/reports/province/" + provLocation + "?date=" + vaccineYesterday);
 
-                //Creation of JSON objects for data retrieved from APIs
+                string canadaWide = await client.GetStringAsync("https://api.covid19tracker.ca/summary");
+
+
                 JObject localVaccine = JObject.Parse(localVaccines);
                 JObject provinceStats = JObject.Parse(provinceWide);
-                JObject vaccinesProv = JObject.Parse(provinceVaccines);
                 JObject canadaStats = JObject.Parse(canadaWide);
-                JObject vaccineCanada = JObject.Parse(canadaVaccines);
 
-               /*
-                *  Local Data 
-               */
 
-                //assign variables for data from local PHU
-                var localDailyCases = localStats["summary"][0]["cases"];
-                var localTotalCases = localStats["summary"][0]["cumulative_cases"];
-                var localDeaths = localStats["summary"][0]["deaths"];
-                var localTotalDeaths = localStats["summary"][0]["cumulative_deaths"];
+                //assign variable for the better data from local PHU    
+                #region LOCAL VARIABLES
 
-                //assign variables for local vaccine data
-                var localDailyVaccines = localVaccine["data"][0]["change_vaccinations"];
-                var localTotalVaccinated = localVaccine["data"][0]["total_vaccinated"];
-                var localVaccinesAdmin = localVaccine["data"][0]["total_vaccinations"];
+                bool pm;
 
-                //assign local area
-                var userLocation = localStats["summary"][0]["health_region"];
+                try
+                {
+                    int LocalActiveCases = Int32.Parse($"{betterLocalStats["data"][0]["total_cases"]}") -
+                                       Int32.Parse($"{betterLocalStats["data"][0]["total_recoveries"]}") -
+                                       Int32.Parse($"{betterLocalStats["data"][0]["total_fatalities"]}");
 
-                /*
-                *  Provincial Data 
-                */
-                //assign variables for provincial data
-                var provinceDailyCases = provinceStats["summary"][0]["cases"];
-                var provinceTotalCases = provinceStats["summary"][0]["cumulative_cases"];
-                var provinceDeaths = provinceStats["summary"][0]["deaths"];
-                var provinceTotalDeaths = provinceStats["summary"][0]["cumulative_deaths"];
+                    string LocalActiveCasesDisplay = await ShortenNumber(LocalActiveCases.ToString(), false);
 
-                //assign variables for provincial vaccine data
-                var provinceDailyVaccines = vaccinesProv["data"][0]["change_vaccinations"];
-                var provinceTotalVaccinated = vaccinesProv["data"][0]["total_vaccinated"];
-                var provinceVaccinesAdmin = vaccinesProv["data"][0]["total_vaccinations"];
+                    activeCasesPHU = LocalActiveCasesDisplay;
 
-                //assign user province
-                var userProv = localStats["summary"][0]["province"];
+                    int LocalChangeActiveCases = Int32.Parse($"{betterLocalStats["data"][0]["change_cases"]}") -
+                                                 Int32.Parse($"{betterLocalStats["data"][0]["change_fatalities"]}") -
+                                                 Int32.Parse($"{betterLocalStats["data"][0]["change_recoveries"]}");
 
-                /*
-                 * National Data
-                 */
+                    pm = LocalChangeActiveCases >= 0;
 
-                //assign variables for national data
-                var canadaCases = canadaStats["summary"][0]["cases"];
-                var canadaTotalCases = canadaStats["summary"][0]["cumulative_cases"];
-                var canadaDeaths = canadaStats["summary"][0]["deaths"];
-                var canadaTotalDeaths = canadaStats["summary"][0]["cumulative_deaths"];
+                    string LocalChangeActiveCasesDisplay = await ShortenNumber(Math.Abs(LocalChangeActiveCases).ToString(), true);
 
-                //assign variables for national vaccine data
-                var canadaDailyVaccines = vaccineCanada["data"][0]["change_vaccinations"];
-                var canadaTotalVaccinated = vaccineCanada["data"][0]["total_vaccinated"];
-                var canadaVaccinesAdmin = vaccineCanada["data"][0]["total_vaccinations"];
+                    newCasesPHU = pm ? $"+{LocalChangeActiveCasesDisplay}" : $"-{LocalChangeActiveCasesDisplay}";
+
+                    string LocalTotalDeathsDisplay = await ShortenNumber($"{betterLocalStats["data"][0]["total_fatalities"]}", false);
+
+                    totalPHUDeaths = LocalTotalDeathsDisplay;
+
+                    int LocalChangeDeaths = Int32.Parse($"{betterLocalStats["data"][0]["change_fatalities"]}");
+
+                    pm = LocalChangeDeaths >= 0;
+
+                    string LocalChangeDeathsDisplay = await ShortenNumber(Math.Abs(LocalChangeDeaths).ToString(), true);
+
+                    newPHUDeaths = pm ? $"+{LocalChangeDeathsDisplay}" : $"-{LocalChangeDeathsDisplay}";
+
+                    string LocalTotalVaccinatedDisplay =
+                        await ShortenNumber($"{betterLocalStats["data"][0]["total_vaccinated"]}", false);
+
+                    totalPHUVaccinated = LocalTotalVaccinatedDisplay;
+
+                    int LocalNewVaccinated = Int32.Parse($"{betterLocalStats["data"][0]["change_vaccinated"]}");
+
+                    pm = LocalNewVaccinated >= 0;
+
+                    string LocalChangeVaccinatedDisplay = await ShortenNumber(Math.Abs(LocalNewVaccinated).ToString(), true);
+
+                    newPHUVaccinated = pm ? $"+{LocalChangeVaccinatedDisplay}" : $"-{LocalChangeVaccinatedDisplay}";
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Problem");
+                }
+
+                #endregion
+
+                #region CANADA WIDE 
+
+
+                int NationalActiveCases = Int32.Parse($"{canadaStats["data"][0]["total_cases"]}") -
+                                       Int32.Parse($"{canadaStats["data"][0]["total_recoveries"]}") -
+                                       Int32.Parse($"{canadaStats["data"][0]["total_fatalities"]}");
+
+                string NationalActiveCasesDisplay = await ShortenNumber(NationalActiveCases.ToString(), false);
+
+                activeCasesNationalNumber = NationalActiveCasesDisplay;
+
+                int NationalChangeActiveCases = Int32.Parse($"{canadaStats["data"][0]["change_cases"]}") -
+                                             Int32.Parse($"{canadaStats["data"][0]["change_fatalities"]}") -
+                                             Int32.Parse($"{canadaStats["data"][0]["change_recoveries"]}");
+
+                pm = NationalChangeActiveCases >= 0;
+
+                string NationalChangeActiveCasesDisplay = await ShortenNumber(Math.Abs(NationalChangeActiveCases).ToString(), true);
+
+                newCasesNationalNumber = pm ? $"+{NationalChangeActiveCasesDisplay}" : $"-{NationalChangeActiveCasesDisplay}";
+
+
+
+                string NationalTotalDeathsDisplay = await ShortenNumber($"{canadaStats["data"][0]["total_fatalities"]}", false);
+
+                totalDeathsNationalNumber = NationalTotalDeathsDisplay;
+
+                int NationalChangeDeaths = Int32.Parse($"{canadaStats["data"][0]["change_fatalities"]}");
+
+                pm = NationalChangeDeaths >= 0;
+
+                string NationalChangeDeathsDisplay = await ShortenNumber(Math.Abs(NationalChangeDeaths).ToString(), true);
+
+                newDeathsNationalNumber = pm ? $"+{NationalChangeDeathsDisplay}" : $"-{NationalChangeDeathsDisplay}";
+
+                string NationalTotalVaccinatedDisplay =
+                    await ShortenNumber($"{canadaStats["data"][0]["total_vaccinated"]}", false);
+
+                totalVaccinatedNationalNumber = NationalTotalVaccinatedDisplay;
+
+                int NationalNewVaccinated = Int32.Parse($"{canadaStats["data"][0]["change_vaccinated"]}");
+
+                pm = NationalNewVaccinated >= 0;
+
+                string NationalChangeVaccinatedDisplay = await ShortenNumber(Math.Abs(NationalNewVaccinated).ToString(), true);
+
+                newVaccinatedNationalNumber = pm ? $"+{NationalChangeVaccinatedDisplay}" : $"-{NationalChangeVaccinatedDisplay}";
+
+                #endregion
+
+                #region PROVINCIAL
+
+
+                int ProvincialActiveCases = Int32.Parse($"{provinceStats["data"][0]["total_cases"]}") -
+                                       Int32.Parse($"{provinceStats["data"][0]["total_recoveries"]}") -
+                                       Int32.Parse($"{provinceStats["data"][0]["total_fatalities"]}");
+
+                string ProvincialActiveCasesDisplay = await ShortenNumber(ProvincialActiveCases.ToString(), false);
+
+                activeCasesProvincialNumber = ProvincialActiveCasesDisplay;
+
+                int ProvincialChangeActiveCases = Int32.Parse($"{provinceStats["data"][0]["change_cases"]}") -
+                                             Int32.Parse($"{provinceStats["data"][0]["change_fatalities"]}") -
+                                             Int32.Parse($"{provinceStats["data"][0]["change_recoveries"]}");
+
+                pm = ProvincialChangeActiveCases >= 0;
+
+                string ProvincialChangeActiveCasesDisplay = await ShortenNumber(Math.Abs(ProvincialChangeActiveCases).ToString(), true);
+
+                newCasesProvincialNumber = pm ? $"+{ProvincialChangeActiveCasesDisplay}" : $"-{ProvincialChangeActiveCasesDisplay}";
+
+
+
+                string ProvincialTotalDeathsDisplay = await ShortenNumber($"{provinceStats["data"][0]["total_fatalities"]}", false);
+
+                totalDeathsProvincialNumber = ProvincialTotalDeathsDisplay;
+
+                int ProvincialChangeDeaths = Int32.Parse($"{provinceStats["data"][0]["change_fatalities"]}");
+
+                pm = ProvincialChangeDeaths >= 0;
+
+                string ProvincialChangeDeathsDisplay = await ShortenNumber(Math.Abs(ProvincialChangeDeaths).ToString(), true);
+
+                newDeathsProvincialNumber = pm ? $"+{ProvincialChangeDeathsDisplay}" : $"-{ProvincialChangeDeathsDisplay}";
+
+                string ProvincialTotalVaccinatedDisplay =
+                    await ShortenNumber($"{provinceStats["data"][0]["total_vaccinated"]}", false);
+
+                totalVaccinatedProvincialNumber = ProvincialTotalVaccinatedDisplay;
+
+                int ProvincialNewVaccinated = Int32.Parse($"{provinceStats["data"][0]["change_vaccinated"]}");
+
+                pm = ProvincialNewVaccinated >= 0;
+
+                string ProvincialChangeVaccinatedDisplay = await ShortenNumber(Math.Abs(ProvincialNewVaccinated).ToString(), true);
+
+                newVaccinatedProvincialNumber = pm ? $"+{ProvincialChangeVaccinatedDisplay}" : $"-{ProvincialChangeVaccinatedDisplay}";
+
+                #endregion
+
+
 
                 tracker++;
-                MainThread.BeginInvokeOnMainThread(() => {
-                    DataLabel.Text = polyName;
-                    CasesCount.Text = $"{localDailyCases} new case(s) in {userLocation}";
-                    deathsCount.Text = $"{localDeaths} deaths in {userLocation}";
 
-                    if (Preferences.Get("Stats", true) == true)
+                GeneralStatisticsType = Preferences.Get("Stats", "National");
+                MainThread.BeginInvokeOnMainThread(() => {
+                    //DataLabel.Text = polyName;
+                    //CasesCount.Text = $"{localDailyCases} new case(s) in {userLocation}";
+                    //deathsCount.Text = $"{localDeaths} deaths in {userLocation}";
+
+                    string currentPreferences = Preferences.Get("Stats", "null");
+
+                    if (currentPreferences == "National")
                     {
-                        broadCases.Text = $"{canadaCases} new case(s) in Canada";
-                        broadDeaths.Text = $"{canadaDeaths} death(s) in Canada";
+                        //broadCases.Text = $"{canadaCases} new case(s) in Canada";
+                        //broadDeaths.Text = $"{canadaDeaths} death(s) in Canada";
+                    }
+                    else if(currentPreferences == "Provincial")
+                    {
+                        //broadCases.Text = $"{provinceDailyCases} new case(s) in {userProv}";
+                        //broadDeaths.Text = $"{provinceDeaths} death(s) in {userProv}";
                     }
                     else
                     {
-                        broadCases.Text = $"{provinceDailyCases} new case(s) in {userProv}";
-                        broadDeaths.Text = $"{provinceDeaths} death(s) in {userProv}";
+                        throw new Exception("Preferences are Null");
                     }
 
 
@@ -227,8 +643,91 @@ namespace CovidApp.Views {
 
         public async void SettingsClicked(object sender, EventArgs e)
         {
-            Application.Current.MainPage = new SettingsPage();
+
+            var waitHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
+            var modalPage = new SettingsPage();
+            modalPage.Disappearing += (sender2, e2) =>
+            {
+                waitHandle.Set();
+            };
+            await Navigation.PushModalAsync(modalPage);
+            await Task.Run(() => waitHandle.WaitOne());
+
+            GeneralStatisticsType = Preferences.Get("Stats", "National");
         }
+
+        public async Task<string> ShortenNumber(string number, bool pm)
+        {
+            int curNum = Int32.Parse(number);
+
+            Console.WriteLine(number);
+
+            if (curNum < 1e3) // 0 - 999 (1 - 3 digits)
+            {
+                return number;
+            }
+            else if (curNum < 1e4) // 1000 - 9999 (4 digits)
+            {
+                string returnString = (curNum / 1e3).ToString();
+
+                return pm ? $"{substr(returnString, 0, 4)}K" : $"{substr(returnString, 0, 5)}K";
+            }
+            else if (curNum < 1e5) // 10,000 - 99,999 (5 digits)
+            {
+                string returnString = (curNum / 1e3).ToString();
+
+                return pm ? $"{substr(returnString, 0, 4)}K" : $"{substr(returnString, 0, 5)}K";
+
+            }
+            else if (curNum < 1e6) // 100,000 - 999,999 (6 digits)
+            {
+                string returnString = (curNum / 1e3).ToString();
+
+                return pm ? $"{substr(returnString, 0, 3)}K" : $"{substr(returnString, 0, 5)}K";
+
+            }
+            else if (curNum < 1e7) // 1,000,000 - 9,999,999 (7 digits)
+            {
+                string returnString = (curNum / 1e6).ToString();
+
+                return pm ? $"{substr(returnString, 0, 4)}M" : $"{substr(returnString, 0, 5)}M";
+            }
+            else if (curNum < 1e8) // 10,000,000 - 99,999,999 (8 digits)
+            {
+                string returnString = (curNum / 1e6).ToString();
+
+                return pm ? $"{substr(returnString, 0, 4)}M" : $"{substr(returnString, 0, 5)}M";
+            }
+            else if (curNum < 1e9) // 100,000,000 - 999,999,999 (9 digits)
+            {
+                string returnString = (curNum / 1e6).ToString();
+
+                return pm ? $"{substr(returnString, 0, 3)}M" : $"{substr(returnString, 0, 5)}M";
+
+            }
+            else // 1,000,000,000 - infinity
+            {
+                string returnString = (curNum / 1e9).ToString();
+
+                return pm ? $"{substr(returnString, 0, 4)}B" : $"{substr(returnString, 0, 5)}B";
+
+            }
+        }
+        
+        string substr(string number, int startIndex, int length)
+        {
+            string retString;
+            try
+            {
+                retString = number.Substring(startIndex, length);
+            }
+            catch (Exception e)
+            {
+                retString = number.Substring(startIndex);
+            }
+            return retString;
+        }
+
 
     }
 }
