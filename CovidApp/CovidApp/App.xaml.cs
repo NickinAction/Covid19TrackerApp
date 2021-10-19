@@ -27,7 +27,7 @@ namespace CovidApp {
 
             var status = await RequestAsync_Fixed<Permissions.LocationWhenInUse>();
             
-            MainPage = new NavigationPage(new TrackerPage(regions)) { BarBackgroundColor = Color.White };
+            MainPage = new NavigationPage(new TrackerPage(regions)) { BarBackgroundColor = Color.White};
         }
 
         public async Task<PermissionStatus> RequestAsync_Fixed<TPermission>()

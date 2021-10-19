@@ -257,7 +257,6 @@
                 </Grid>
 
                 <Grid x:Name="Grid4"
-                      BackgroundColor="AliceBlue"
                       Grid.Row="4"
                       Padding="10,0,10,10"
                       Margin="10,0"

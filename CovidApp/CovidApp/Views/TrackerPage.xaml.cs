@@ -449,6 +449,7 @@ namespace CovidApp.Views {
                 JObject canadaStats = JObject.Parse(canadaWide);
 
 
+
                 //assign variable for the better data from local PHU    
                 #region LOCAL VARIABLES
 
@@ -606,35 +607,12 @@ namespace CovidApp.Views {
 
                 #endregion
 
+                if (Preferences.Get("Stats", "null") == "null")
+                {
+                    Preferences.Set("Stats", "National");
+                    GeneralStatisticsType = Preferences.Get("Stats", "National");
+                }
 
-
-                tracker++;
-
-                GeneralStatisticsType = Preferences.Get("Stats", "National");
-                MainThread.BeginInvokeOnMainThread(() => {
-                    //DataLabel.Text = polyName;
-                    //CasesCount.Text = $"{localDailyCases} new case(s) in {userLocation}";
-                    //deathsCount.Text = $"{localDeaths} deaths in {userLocation}";
-
-                    string currentPreferences = Preferences.Get("Stats", "null");
-
-                    if (currentPreferences == "National")
-                    {
-                        //broadCases.Text = $"{canadaCases} new case(s) in Canada";
-                        //broadDeaths.Text = $"{canadaDeaths} death(s) in Canada";
-                    }
-                    else if(currentPreferences == "Provincial")
-                    {
-                        //broadCases.Text = $"{provinceDailyCases} new case(s) in {userProv}";
-                        //broadDeaths.Text = $"{provinceDeaths} death(s) in {userProv}";
-                    }
-                    else
-                    {
-                        throw new Exception("Preferences are Null");
-                    }
-
-
-                });
                 // wait 15 seconds
                 await delayTask;
             }
